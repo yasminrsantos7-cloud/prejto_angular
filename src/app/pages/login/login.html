@@ -1,0 +1,43 @@
+<main class="login-main">
+  <section class="login-container">
+    <div class="login-image-container">
+      <img src="/img/ranger.png" alt="Ford Ranger" class="car-image">
+    </div>
+
+    <div class="login-form-container">
+      <div class="brand-logo">
+        <img src="/img/ford.png" alt="Logo Ford">
+      </div>
+
+      <h2>Boas-vindas</h2>
+
+      <form class="login-form" (submit)="fazerLogin($event)">
+        <div class="form-field">
+          <div class="input-icon-wrapper">
+            <span class="icon">👤</span>
+            <input id="username" name="username" type="text" placeholder="Digite seu usuário" [(ngModel)]="nome" required>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <div class="input-icon-wrapper">
+            <span class="icon">🔒</span>
+            <input id="password" name="password" type="password" placeholder="Digite sua senha" [(ngModel)]="senha" required>
+          </div>
+        </div>
+
+        <div class="remember-me-container">
+          <span>Lembrar de mim / Salvar dados</span>
+          <input type="checkbox" id="remember" name="remember">
+        </div>
+
+        <button type="submit" class="btn-submit" [disabled]="carregando">
+          {{ carregando ? 'Entrando...' : 'Entrar' }}
+        </button>
+        @if (mensagemErro) {
+          <p class="login-error" role="alert">{{ mensagemErro }}</p>
+        }
+      </form>
+    </div>
+  </section>
+</main>

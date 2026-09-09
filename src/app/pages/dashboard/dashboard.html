@@ -1,0 +1,38 @@
+<header class="header">
+  <button
+    type="button"
+    class="menu-toggle-btn"
+    aria-label="Abrir menu"
+    [attr.aria-expanded]="menuAberto"
+    (click)="alternarMenu()">
+    <span class="menu-icon" aria-hidden="true">☰</span>
+  </button>
+
+  <nav class="sidebar-nav" id="sidebarNav" [class.ativo]="menuAberto">
+    <div class="brand-logo">
+      <img src="/img/ford.png" alt="Logo Ford">
+    </div>
+
+    <ul>
+      <li>
+        <a routerLink="/home" (click)="fecharMenu()">Home</a>
+      </li>
+      <li>
+        <a routerLink="/dashboard" (click)="fecharMenu()">Dashboard</a>
+      </li>
+      <li>
+        <button type="button" class="menu-link" routerLink="/login" (click)="fecharMenu()">
+          <i class="fa-solid fa-square-arrow-up-right" aria-hidden="true"></i>
+        
+        </button>
+      </li>
+    </ul>
+  </nav>
+
+  <div
+    class="menu-overlay"
+    id="menuOverlay"
+    [class.ativo]="menuAberto"
+    (click)="fecharMenu()">
+  </div>
+</header>
