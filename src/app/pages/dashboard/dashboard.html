@@ -21,9 +21,9 @@
         <a routerLink="/dashboard" (click)="fecharMenu()">Dashboard</a>
       </li>
       <li>
-        <button type="button" class="menu-link" routerLink="/login" (click)="fecharMenu()">
+        <button type="button" class="menu-link" (click)="sair()" aria-label="Sair">
           <i class="fa-solid fa-square-arrow-up-right" aria-hidden="true"></i>
-        
+          <span>Sair</span>
         </button>
       </li>
     </ul>
@@ -36,3 +36,95 @@
     (click)="fecharMenu()">
   </div>
 </header>
+
+<main class="dashboard-main">
+  <section class="dashboard-heading">
+   
+    <h1>Dashboard ford</h1>
+    
+  </section>
+
+  <section class="dashboard-cards" aria-label="Indicadores do dashboard">
+    <article class="dashboard-card">
+      <label class="card-label" for="vehicle-select">Modelo do veículo</label>
+      <select
+        id="vehicle-select"
+        class="vehicle-select"
+        [value]="veiculoSelecionadoId"
+        (change)="selecionarVeiculo($event)">
+        @for (veiculo of veiculos; track veiculo.id) {
+          <option [value]="veiculo.id">{{ veiculo.vehicle }}</option>
+        }
+      </select>
+      <span class="card-note">Modelo selecionado</span>
+    </article>
+    <article class="dashboard-card">
+      <span class="card-label">Total de vendas</span>
+      <strong>{{ indicador('totalSales', 'sales', 'vendas', 'totalVendas') }}</strong>
+      <span class="card-note">Para o modelo selecionado</span>
+    </article>
+    <article class="dashboard-card">
+      <span class="card-label">Veículos conectados</span>
+      <strong>{{ indicador('connected', 'connectedVehicles', 'veiculosConectados') }}</strong>
+      <span class="card-note">Conectados ao sistema Ford</span>
+    </article>
+    <article class="dashboard-card">
+      <span class="card-label">Software atualizado</span>
+      <strong>{{ indicador('softwareUpdates', 'updatedSoftware', 'softwareAtualizado') }}</strong>
+      <span class="card-note">Veículos atualizados</span>
+    </article>
+  </section>
+
+  @if (erroApi) {
+    <p class="api-message" role="alert">{{ erroApi }}</p>
+  }
+
+  <section class="vehicle-showcase" aria-label="Veículo selecionado">
+    <img
+      [src]="imagemDoVeiculo(veiculoSelecionado.vehicle)"
+      [alt]="veiculoSelecionado.vehicle">
+  </section>
+
+  <section class="vehicle-data-section">
+    <div class="section-heading">
+      <h2>Dados dos veículos</h2>
+      <label for="vehicle-code-search">Buscar por código do veículo</label>
+      <input
+        id="vehicle-code-search"
+        class="search-input"
+        type="search"
+        placeholder="Ex.: 2FRHDUYS2Y63NHD22454"
+        [value]="buscaCodigo"
+        (input)="buscaCodigo = $any($event.target).value">
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Modelo</th>
+            <th>Quilometragem</th>
+            <th>Conectado</th>
+            <th>Software</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (dados of dadosFiltrados; track $index) {
+            <tr>
+              <td>{{ valor(dados, 'vin', 'code', 'vehicleCode') }}</td>
+              <td>{{ valor(dados, 'vehicle', 'model', 'name') }}</td>
+              <td>{{ valor(dados, 'odometer', 'mileage', 'quilometragem') }}</td>
+              <td>{{ valor(dados, 'connected', 'connectionStatus', 'status') }}</td>
+              <td>{{ valor(dados, 'softwareUpdates', 'software', 'softwareStatus') }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5">Nenhum dado encontrado.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>

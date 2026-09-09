@@ -33,6 +33,7 @@ export class Login {
     }).subscribe({
       next: () => {
         this.carregando = false;
+        sessionStorage.setItem('autenticado', 'true');
         this.router.navigate(['/home']);
       },
       error: (error) => {
