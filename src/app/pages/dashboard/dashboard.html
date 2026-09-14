@@ -50,11 +50,11 @@
       <select
         id="vehicle-select"
         class="vehicle-select"
-        [value]="veiculoSelecionadoId"
-        (change)="selecionarVeiculo($event)">
-        @for (veiculo of veiculos; track veiculo.id) {
-          <option [value]="veiculo.id">{{ veiculo.vehicle }}</option>
-        }
+        name="vehicle"
+        [(ngModel)]="veiculoSelecionadoId">
+        <option *ngFor="let veiculo of veiculos; trackBy: trackByVeiculo" [value]="veiculo.id">
+          {{ veiculo.vehicle }}
+        </option>
       </select>
       <span class="card-note">Modelo selecionado</span>
     </article>
@@ -87,11 +87,12 @@
       <label for="vehicle-code-search">Buscar por código do veículo</label>
       <input
         id="vehicle-code-search"
+        name="vehicleCode"
         class="search-input"
         type="search"
         placeholder="Ex.: 2FRHDUYS2Y63NHD22454"
-        [value]="buscaCodigo"
-        (input)="atualizarBusca($event)">
+        [(ngModel)]="buscaCodigo"
+        (ngModelChange)="atualizarBusca($event)">
     </div>
 
     <div class="table-wrapper">
@@ -107,20 +108,17 @@
           </tr>
         </thead>
         <tbody>
-          @for (dados of dadosFiltrados; track $index) {
-            <tr>
-              <td>{{ valor(dados, 'vin', 'code', 'vehicleCode', 'vehicleId') }}</td>
-              <td>{{ valor(dados, 'odometer', 'odometro', 'mileage', 'quilometragem') }}</td>
-              <td>{{ valor(dados, 'fuelLevel', 'nivelCombustivel', 'steeringConnected', 'batteryLevel') }}</td>
-              <td>{{ valor(dados, 'status', 'tirePressure', 'tiresPressure') }}</td>
-              <td>{{ valor(dados, 'lat', 'latitude') }}</td>
-              <td>{{ valor(dados, 'long', 'longitude', 'lng') }}</td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="6">Nenhum dado encontrado.</td>
-            </tr>
-          }
+          <tr *ngFor="let dados of dadosFiltrados; trackBy: trackByIndice">
+            <td>{{ valor(dados, 'vin', 'code', 'vehicleCode', 'vehicleId') }}</td>
+            <td>{{ valor(dados, 'odometer', 'odometro', 'mileage', 'quilometragem') }}</td>
+            <td>{{ valor(dados, 'fuelLevel', 'nivelCombustivel', 'steeringConnected', 'batteryLevel') }}</td>
+            <td>{{ valor(dados, 'status', 'tirePressure', 'tiresPressure') }}</td>
+            <td>{{ valor(dados, 'lat', 'latitude') }}</td>
+            <td>{{ valor(dados, 'long', 'longitude', 'lng') }}</td>
+          </tr>
+          <tr *ngIf="dadosFiltrados.length === 0">
+            <td colspan="6">Nenhum dado encontrado.</td>
+          </tr>
         </tbody>
       </table>
     </div>

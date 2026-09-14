@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { Subject, catchError, debounceTime, distinctUntilChanged, filter, map, of, switchMap, takeUntil } from 'rxjs';
 import { VehicleService } from '../../services/vehicle';
 
 interface DashboardVeiculo {
@@ -12,11 +14,11 @@ interface DashboardVeiculo {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
-export class Dashboard implements OnInit {
+export class Dashboard implements OnInit, OnDestroy {
   menuAberto = false;
   veiculoSelecionadoId = '';
   buscaCodigo = '';
@@ -28,6 +30,8 @@ export class Dashboard implements OnInit {
   ];
   vehicleData: Record<string, unknown>[] = [];
   carregando = true;
+  private readonly buscaCodigo$ = new Subject<string>();
+  private readonly destroy$ = new Subject<void>();
   constructor(
     private router: Router,
     private vehicleService: VehicleService,
@@ -43,6 +47,27 @@ export class Dashboard implements OnInit {
       },
       error: () => this.definirErroApi(),
     });
+
+    this.buscaCodigo$.pipe(
+      debounceTime(300),
+      map((codigo) => codigo.trim().toUpperCase()),
+      distinctUntilChanged(),
+      filter((vin) => vin.length >= 17),
+      switchMap((vin) => this.vehicleService.getVehicleData(vin).pipe(
+        map((response) => ({ response, vin })),
+        catchError(() => of({ response: null, vin })),
+      )),
+      takeUntil(this.destroy$),
+    ).subscribe({
+      next: ({ response, vin }) => {
+        this.vehicleData = response ? this.normalizarLista(response, vin) : [];
+      },
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   get veiculoSelecionado(): DashboardVeiculo {
@@ -65,22 +90,21 @@ export class Dashboard implements OnInit {
       .toLowerCase().includes(busca));
   }
 
-  selecionarVeiculo(event: Event): void {
-    this.veiculoSelecionadoId = (event.target as HTMLSelectElement).value;
+  trackByVeiculo(_: number, veiculo: DashboardVeiculo): number | string {
+    return veiculo.id;
   }
 
-  atualizarBusca(event: Event): void {
-    this.buscaCodigo = (event.target as HTMLInputElement).value;
-    const vin = this.buscaCodigo.trim().toUpperCase();
+  trackByIndice(indice: number): number {
+    return indice;
+  }
+
+  atualizarBusca(codigo: string): void {
+    this.buscaCodigo = codigo;
+    const vin = codigo.trim().toUpperCase();
     if (vin.length < 17) {
       this.vehicleData = [];
-      return;
     }
-
-    this.vehicleService.getVehicleData(vin).subscribe({
-      next: (response) => this.vehicleData = this.normalizarLista(response, vin),
-      error: () => this.vehicleData = [],
-    });
+    this.buscaCodigo$.next(codigo);
   }
 
   valor(dados: Record<string, unknown> | undefined, ...chaves: string[]): string {
