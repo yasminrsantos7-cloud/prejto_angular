@@ -28,8 +28,6 @@ export class Dashboard implements OnInit {
   ];
   vehicleData: Record<string, unknown>[] = [];
   carregando = true;
-  erroApi = '';
-
   constructor(
     private router: Router,
     private vehicleService: VehicleService,
@@ -43,12 +41,7 @@ export class Dashboard implements OnInit {
         this.veiculoSelecionadoId = String(this.veiculos[0]?.id ?? '');
         this.carregando = false;
       },
-      error: (error: HttpErrorResponse) => this.definirErroApi(error),
-    });
-
-    this.vehicleService.getVehicleData().subscribe({
-      next: (response) => this.vehicleData = this.normalizarLista(response),
-      error: (error: HttpErrorResponse) => this.definirErroApi(error),
+      error: () => this.definirErroApi(),
     });
   }
 
@@ -74,6 +67,20 @@ export class Dashboard implements OnInit {
 
   selecionarVeiculo(event: Event): void {
     this.veiculoSelecionadoId = (event.target as HTMLSelectElement).value;
+  }
+
+  atualizarBusca(event: Event): void {
+    this.buscaCodigo = (event.target as HTMLInputElement).value;
+    const vin = this.buscaCodigo.trim().toUpperCase();
+    if (vin.length < 17) {
+      this.vehicleData = [];
+      return;
+    }
+
+    this.vehicleService.getVehicleData(vin).subscribe({
+      next: (response) => this.vehicleData = this.normalizarLista(response, vin),
+      error: () => this.vehicleData = [],
+    });
   }
 
   valor(dados: Record<string, unknown> | undefined, ...chaves: string[]): string {
@@ -112,19 +119,27 @@ export class Dashboard implements OnInit {
     });
   }
 
-  private normalizarLista(response: unknown): Record<string, unknown>[] {
+  private normalizarLista(response: unknown, vin?: string): Record<string, unknown>[] {
     if (Array.isArray(response)) {
-      return response as Record<string, unknown>[];
+      return response.map((item) => ({
+        ...(item as Record<string, unknown>),
+        vin: (item as Record<string, unknown>)['vin'] ?? vin,
+      }));
     }
     const dados = response as { vehicleData?: unknown[] };
-    return (dados?.vehicleData ?? []) as Record<string, unknown>[];
+    if (Array.isArray(dados?.vehicleData)) {
+      return dados.vehicleData.map((item) => ({
+        ...(item as Record<string, unknown>),
+        vin: (item as Record<string, unknown>)['vin'] ?? vin,
+      }));
+    }
+    return response && typeof response === 'object'
+      ? [{ ...(response as Record<string, unknown>), vin: (response as Record<string, unknown>)['vin'] ?? vin }]
+      : [];
   }
 
-  private definirErroApi(error: HttpErrorResponse): void {
+  private definirErroApi(): void {
     this.carregando = false;
-    this.erroApi = error.status === 0
-      ? 'Não foi possível conectar ao back-end.'
-      : '';
   }
 
   alternarMenu(): void {

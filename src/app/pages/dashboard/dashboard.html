@@ -46,7 +46,7 @@
 
   <section class="dashboard-cards" aria-label="Indicadores do dashboard">
     <article class="dashboard-card">
-      <label class="card-label" for="vehicle-select">Modelo do veículo</label>
+      <label class="card-label" for="vehicle-select">Veículo</label>
       <select
         id="vehicle-select"
         class="vehicle-select"
@@ -59,25 +59,21 @@
       <span class="card-note">Modelo selecionado</span>
     </article>
     <article class="dashboard-card">
-      <span class="card-label">Total de vendas</span>
-      <strong>{{ indicador('totalSales', 'sales', 'vendas', 'totalVendas') }}</strong>
-      <span class="card-note">Para o modelo selecionado</span>
+      <span class="card-label">Total de Vendas</span>
+      <strong>{{ indicador('totalSales', 'volumetotal', 'sales', 'vendas', 'totalVendas') }}</strong>
+      <span class="card-note">unid.</span>
     </article>
     <article class="dashboard-card">
-      <span class="card-label">Veículos conectados</span>
+      <span class="card-label">Conectados</span>
       <strong>{{ indicador('connected', 'connectedVehicles', 'veiculosConectados') }}</strong>
-      <span class="card-note">Conectados ao sistema Ford</span>
+      <span class="card-note">veíc.</span>
     </article>
     <article class="dashboard-card">
-      <span class="card-label">Software atualizado</span>
+      <span class="card-label">Update Software</span>
       <strong>{{ indicador('softwareUpdates', 'updatedSoftware', 'softwareAtualizado') }}</strong>
-      <span class="card-note">Veículos atualizados</span>
+      <span class="card-note">veíc.</span>
     </article>
   </section>
-
-  @if (erroApi) {
-    <p class="api-message" role="alert">{{ erroApi }}</p>
-  }
 
   <section class="vehicle-showcase" aria-label="Veículo selecionado">
     <img
@@ -95,32 +91,34 @@
         type="search"
         placeholder="Ex.: 2FRHDUYS2Y63NHD22454"
         [value]="buscaCodigo"
-        (input)="buscaCodigo = $any($event.target).value">
+        (input)="atualizarBusca($event)">
     </div>
 
     <div class="table-wrapper">
       <table>
         <thead>
           <tr>
-            <th>Código</th>
-            <th>Modelo</th>
-            <th>Quilometragem</th>
-            <th>Conectado</th>
-            <th>Software</th>
+            <th>VIN</th>
+            <th>Odômetro</th>
+            <th>Combustível / conexão</th>
+            <th>Status / pneus</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
           </tr>
         </thead>
         <tbody>
           @for (dados of dadosFiltrados; track $index) {
             <tr>
-              <td>{{ valor(dados, 'vin', 'code', 'vehicleCode') }}</td>
-              <td>{{ valor(dados, 'vehicle', 'model', 'name') }}</td>
-              <td>{{ valor(dados, 'odometer', 'mileage', 'quilometragem') }}</td>
-              <td>{{ valor(dados, 'connected', 'connectionStatus', 'status') }}</td>
-              <td>{{ valor(dados, 'softwareUpdates', 'software', 'softwareStatus') }}</td>
+              <td>{{ valor(dados, 'vin', 'code', 'vehicleCode', 'vehicleId') }}</td>
+              <td>{{ valor(dados, 'odometer', 'odometro', 'mileage', 'quilometragem') }}</td>
+              <td>{{ valor(dados, 'fuelLevel', 'nivelCombustivel', 'steeringConnected', 'batteryLevel') }}</td>
+              <td>{{ valor(dados, 'status', 'tirePressure', 'tiresPressure') }}</td>
+              <td>{{ valor(dados, 'lat', 'latitude') }}</td>
+              <td>{{ valor(dados, 'long', 'longitude', 'lng') }}</td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="5">Nenhum dado encontrado.</td>
+              <td colspan="6">Nenhum dado encontrado.</td>
             </tr>
           }
         </tbody>

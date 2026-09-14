@@ -1,1 +1,16 @@
 /* Estilos globais da aplicação Angular. */
+html,
+body {
+	width: 100%;
+	min-height: 100%;
+	margin: 0;
+}
+
+body {
+	min-height: 100vh;
+}
+
+app-root {
+	display: block;
+	min-height: 100vh;
+}

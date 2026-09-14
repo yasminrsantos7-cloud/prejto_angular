@@ -11,10 +11,10 @@ export class VehicleService {
   constructor(private http: HttpClient) {}
 
   getVehicles(): Observable<unknown> {
-    return this.http.get<unknown>(`${this.apiUrl}/vehicle`);
+    return this.http.get<unknown>(`${this.apiUrl}/vehicles`);
   }
 
-  getVehicleData(): Observable<unknown> {
-    return this.http.get<unknown>(`${this.apiUrl}/vehicleData`);
+  getVehicleData(vin: string): Observable<unknown> {
+    return this.http.post<unknown>(`${this.apiUrl}/vehicleData`, { vin });
   }
 }

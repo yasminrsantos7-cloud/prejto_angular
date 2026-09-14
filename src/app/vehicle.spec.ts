@@ -10,12 +10,12 @@ export class VehicleService {
 
   constructor(private http: HttpClient) {}
 
-  // Passo 8: Busca os dados dos modelos
+
   getVehicles(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/vehicle`);
   }
 
-  // Passo 11: Busca os dados detalhado do veículo/telemetria
+
   getVehicleData(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/vehicleData`);
   }
