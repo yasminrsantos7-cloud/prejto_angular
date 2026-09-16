@@ -2,6 +2,10 @@ export interface Veiculo {
   id: string;
   nome: string;
   imagemUrl?: string;
+  vin?: string;
+  totalVendas?: number;
+  conectados?: number;
+  updatesSoftware?: number;
 }
 
 export interface IndicadoresDashboard {

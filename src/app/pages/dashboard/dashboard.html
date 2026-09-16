@@ -8,7 +8,7 @@
     <span class="menu-icon" aria-hidden="true">☰</span>
   </button>
 
-  <nav class="sidebar-nav" id="sidebarNav" [class.ativo]="menuAberto">
+  <nav class="sidebar-nav" [class.ativo]="menuAberto">
     <div class="brand-logo">
       <img src="/img/ford.png" alt="Logo Ford">
     </div>
@@ -29,19 +29,12 @@
     </ul>
   </nav>
 
-  <div
-    class="menu-overlay"
-    id="menuOverlay"
-    [class.ativo]="menuAberto"
-    (click)="fecharMenu()">
-  </div>
+  <div class="menu-overlay" [class.ativo]="menuAberto" (click)="fecharMenu()"></div>
 </header>
 
 <main class="dashboard-main">
   <section class="dashboard-heading">
-   
     <h1>Dashboard ford</h1>
-    
   </section>
 
   <section class="dashboard-cards" aria-label="Indicadores do dashboard">
@@ -50,8 +43,8 @@
       <select
         id="vehicle-select"
         class="vehicle-select"
-        name="vehicle"
-        [(ngModel)]="veiculoSelecionadoId">
+        [(ngModel)]="veiculoSelecionadoId"
+        (ngModelChange)="selecionarVeiculo($event)">
         <option *ngFor="let veiculo of veiculos; trackBy: trackByVeiculo" [value]="veiculo.id">
           {{ veiculo.nome }}
         </option>
@@ -87,11 +80,11 @@
       <label for="vehicle-code-search">Buscar por código do veículo</label>
       <input
         id="vehicle-code-search"
-        name="vehicleCode"
         class="search-input"
         type="search"
         placeholder="Ex.: 2FRHDUYS2Y63NHD22454"
-        [(ngModel)]="buscaCodigo">
+        [(ngModel)]="buscaCodigo"
+        (ngModelChange)="atualizarBusca($event)">
     </div>
 
     <div class="table-wrapper">
@@ -100,7 +93,7 @@
           <tr>
             <th>VIN</th>
             <th>Odômetro</th>
-            <th>Combustível / conexão</th>
+            <th>nivel de Combustível</th>
             <th>Status / pneus</th>
             <th>Latitude</th>
             <th>Longitude</th>

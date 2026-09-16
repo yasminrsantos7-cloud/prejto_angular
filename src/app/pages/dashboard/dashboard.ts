@@ -42,6 +42,7 @@ export class Dashboard implements OnInit, OnDestroy {
       next: (response) => {
         this.veiculos = this.normalizarVeiculos(response);
         this.veiculoSelecionadoId = String(this.veiculos[0]?.id ?? '');
+        this.atualizarIndicadores();
         this.carregando = false;
       },
       error: () => this.definirErroApi(),
@@ -93,6 +94,17 @@ export class Dashboard implements OnInit, OnDestroy {
     return indice;
   }
 
+  selecionarVeiculo(id: string): void {
+    this.veiculoSelecionadoId = id;
+    this.atualizarIndicadores();
+    this.buscaCodigo = '';
+    this.vehicleData = [];
+
+    if (this.veiculoSelecionado.vin) {
+      this.atualizarBusca(this.veiculoSelecionado.vin);
+    }
+  }
+
   atualizarBusca(codigo: string): void {
     this.buscaCodigo = codigo;
     const vin = codigo.trim().toUpperCase();
@@ -132,9 +144,22 @@ export class Dashboard implements OnInit, OnDestroy {
       return {
         id,
         nome,
-        imagemUrl: String(dados['imagemUrl'] ?? this.imagemDoVeiculo(nome)),
+        imagemUrl: String(dados['imagemUrl'] ?? dados['img'] ?? this.imagemDoVeiculo(nome)),
+        vin: dados['vin'] ? String(dados['vin']) : undefined,
+        totalVendas: Number(dados['volumetotal'] ?? dados['totalVendas'] ?? 0),
+        conectados: Number(dados['connected'] ?? dados['conectados'] ?? 0),
+        updatesSoftware: Number(dados['softwareUpdates'] ?? dados['updatesSoftware'] ?? 0),
       };
     });
+  }
+
+  private atualizarIndicadores(): void {
+    const veiculo = this.veiculoSelecionado;
+    this.indicadores = {
+      totalVendas: veiculo.totalVendas ?? 0,
+      conectados: veiculo.conectados ?? 0,
+      updatesSoftware: veiculo.updatesSoftware ?? 0,
+    };
   }
 
   private normalizarLista(response: unknown, vin?: string): DadoVeiculo[] {
@@ -143,7 +168,7 @@ export class Dashboard implements OnInit, OnDestroy {
       return {
         vin: String(dados['vin'] ?? vin ?? ''),
         odometro: Number(dados['odometro'] ?? dados['odometer'] ?? 0),
-        nivelCombustivelOuBateria: (dados['nivelCombustivelOuBateria'] ?? dados['fuelLevel'] ?? dados['batteryLevel'] ?? '-') as string | number,
+        nivelCombustivelOuBateria: (dados['nivelCombustivel'] ?? dados['nivelCombustivelOuBateria'] ?? dados['fuelLevel'] ?? dados['batteryLevel'] ?? '-') as string | number,
         statusOuPneus: String(dados['statusOuPneus'] ?? dados['status'] ?? dados['tirePressure'] ?? '-'),
         latitude: Number(dados['latitude'] ?? dados['lat'] ?? 0),
         longitude: Number(dados['longitude'] ?? dados['long'] ?? dados['lng'] ?? 0),
