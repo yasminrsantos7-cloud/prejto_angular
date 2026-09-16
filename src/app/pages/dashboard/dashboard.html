@@ -53,32 +53,32 @@
         name="vehicle"
         [(ngModel)]="veiculoSelecionadoId">
         <option *ngFor="let veiculo of veiculos; trackBy: trackByVeiculo" [value]="veiculo.id">
-          {{ veiculo.vehicle }}
+          {{ veiculo.nome }}
         </option>
       </select>
       <span class="card-note">Modelo selecionado</span>
     </article>
     <article class="dashboard-card">
       <span class="card-label">Total de Vendas</span>
-      <strong>{{ indicador('totalSales', 'volumetotal', 'sales', 'vendas', 'totalVendas') }}</strong>
+      <strong>{{ indicadores.totalVendas }}</strong>
       <span class="card-note">unid.</span>
     </article>
     <article class="dashboard-card">
       <span class="card-label">Conectados</span>
-      <strong>{{ indicador('connected', 'connectedVehicles', 'veiculosConectados') }}</strong>
+      <strong>{{ indicadores.conectados }}</strong>
       <span class="card-note">veíc.</span>
     </article>
     <article class="dashboard-card">
       <span class="card-label">Update Software</span>
-      <strong>{{ indicador('softwareUpdates', 'updatedSoftware', 'softwareAtualizado') }}</strong>
+      <strong>{{ indicadores.updatesSoftware }}</strong>
       <span class="card-note">veíc.</span>
     </article>
   </section>
 
   <section class="vehicle-showcase" aria-label="Veículo selecionado">
     <img
-      [src]="imagemDoVeiculo(veiculoSelecionado.vehicle)"
-      [alt]="veiculoSelecionado.vehicle">
+      [src]="veiculoSelecionado.imagemUrl ?? imagemDoVeiculo(veiculoSelecionado.nome)"
+      [alt]="veiculoSelecionado.nome">
   </section>
 
   <section class="vehicle-data-section">
@@ -91,8 +91,7 @@
         class="search-input"
         type="search"
         placeholder="Ex.: 2FRHDUYS2Y63NHD22454"
-        [(ngModel)]="buscaCodigo"
-        (ngModelChange)="atualizarBusca($event)">
+        [(ngModel)]="buscaCodigo">
     </div>
 
     <div class="table-wrapper">
@@ -109,12 +108,12 @@
         </thead>
         <tbody>
           <tr *ngFor="let dados of dadosFiltrados; trackBy: trackByIndice">
-            <td>{{ valor(dados, 'vin', 'code', 'vehicleCode', 'vehicleId') }}</td>
-            <td>{{ valor(dados, 'odometer', 'odometro', 'mileage', 'quilometragem') }}</td>
-            <td>{{ valor(dados, 'fuelLevel', 'nivelCombustivel', 'steeringConnected', 'batteryLevel') }}</td>
-            <td>{{ valor(dados, 'status', 'tirePressure', 'tiresPressure') }}</td>
-            <td>{{ valor(dados, 'lat', 'latitude') }}</td>
-            <td>{{ valor(dados, 'long', 'longitude', 'lng') }}</td>
+            <td>{{ dados.vin }}</td>
+            <td>{{ dados.odometro }}</td>
+            <td>{{ dados.nivelCombustivelOuBateria }}</td>
+            <td>{{ dados.statusOuPneus }}</td>
+            <td>{{ dados.latitude }}</td>
+            <td>{{ dados.longitude }}</td>
           </tr>
           <tr *ngIf="dadosFiltrados.length === 0">
             <td colspan="6">Nenhum dado encontrado.</td>

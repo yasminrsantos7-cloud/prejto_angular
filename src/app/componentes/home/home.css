@@ -59,7 +59,7 @@ a:hover {
 	height: 100%;
 	background-color: #ffff;
 	z-index: 1001;
-	box-shadow: 2px 0 10px green;
+	box-shadow: 2px 0 10px#002c6c;
 	transition: left 0.3s ease-in-out;
 	padding-top: 80px;
 	overflow-y: auto;
@@ -99,7 +99,7 @@ a:hover {
 	gap: 16px;
 	padding: 16px 32px;
 	font-size: 14px;
-	color: green;
+	color:#002c6c;
 	transition: background-color 0.2s ease;
 }
 

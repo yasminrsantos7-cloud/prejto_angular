@@ -42,7 +42,7 @@
   padding-top: 80px;
   overflow-y: auto;
   background-color: #ffff;
-  box-shadow: 2px 0 10px green;
+  box-shadow: 2px 0 10px #002c6c;
   transition: left 0.3s ease-in-out;
 }
 
@@ -79,7 +79,7 @@
   align-items: center;
   gap: 16px;
   padding: 16px 32px;
-  color: green;
+  color: #002c6c;
   font-size: 14px;
   text-decoration: none;
   transition: background-color 0.2s ease;
@@ -139,7 +139,7 @@
 
 .eyebrow {
   margin: 0 0 8px;
-  color: #087443;
+  color:#002c6c;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -188,7 +188,7 @@
 .vehicle-select {
   width: 100%;
   padding: 8px 10px;
-  border: 1px solid #ffff;
+  border: 1px solid #15251b;
   border-radius: 6px;
   background: #fff;
   color: #15251b;

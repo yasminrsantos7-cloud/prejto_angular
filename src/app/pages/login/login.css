@@ -120,7 +120,7 @@ body {
   width: 100%;
   padding: 10px;
   margin-top: 8px;
-  background-color: #bebebe;
+  background-color: #002c6c;
   color: #ffffff;
   border: none;
   border-radius: 2px;
@@ -131,7 +131,7 @@ body {
 }
 
 .btn-submit:hover {
-  background-color: #a3a3a3;
+  background-color: #001f4d;
 }
 
 .btn-submit:disabled {

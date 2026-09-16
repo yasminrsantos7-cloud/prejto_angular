@@ -3,14 +3,8 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Subject, catchError, debounceTime, distinctUntilChanged, filter, map, of, switchMap, takeUntil } from 'rxjs';
+import { DadoVeiculo, IndicadoresDashboard, Veiculo } from '../../models/veiculo.model';
 import { VehicleService } from '../../services/vehicle';
-
-interface DashboardVeiculo {
-  id: number | string;
-  vehicle: string;
-  [key: string]: unknown;
-  imagem: string;
-}
 
 @Component({
   selector: 'app-dashboard',
@@ -22,13 +16,18 @@ export class Dashboard implements OnInit, OnDestroy {
   menuAberto = false;
   veiculoSelecionadoId = '';
   buscaCodigo = '';
-  veiculos: DashboardVeiculo[] = [
-    { id: 1, vehicle: 'Ford Ranger', totalSales: 0, connected: 0, softwareUpdates: 0, imagem: '/img/ranger.png' },
-    { id: 2, vehicle: 'Ford Mustang', totalSales: 0, connected: 0, softwareUpdates: 0, imagem: '/img/mustang.png' },
-    { id: 3, vehicle: 'Ford Bronco Sport', totalSales: 0, connected: 0, softwareUpdates: 0, imagem: '/img/broncoSport.png' },
-    { id: 4, vehicle: 'Ford Territory', totalSales: 0, connected: 0, softwareUpdates: 0, imagem: '/img/territory.png' },
+  veiculos: Veiculo[] = [
+    { id: '1', nome: 'Ford Ranger', imagemUrl: '/img/ranger.png' },
+    { id: '2', nome: 'Ford Mustang', imagemUrl: '/img/mustang.png' },
+    { id: '3', nome: 'Ford Bronco Sport', imagemUrl: '/img/broncoSport.png' },
+    { id: '4', nome: 'Ford Territory', imagemUrl: '/img/territory.png' },
   ];
-  vehicleData: Record<string, unknown>[] = [];
+  indicadores: IndicadoresDashboard = {
+    totalVendas: 0,
+    conectados: 0,
+    updatesSoftware: 0,
+  };
+  vehicleData: DadoVeiculo[] = [];
   carregando = true;
   private readonly buscaCodigo$ = new Subject<string>();
   private readonly destroy$ = new Subject<void>();
@@ -70,17 +69,13 @@ export class Dashboard implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  get veiculoSelecionado(): DashboardVeiculo {
+  get veiculoSelecionado(): Veiculo {
     return this.veiculos.find(({ id }) => String(id) === this.veiculoSelecionadoId)
       ?? this.veiculos[0]
-      ?? { id: '', vehicle: 'Nenhum veículo', imagem: '/img/ford.png' };
+      ?? { id: '', nome: 'Nenhum veículo', imagemUrl: '/img/ford.png' };
   }
 
-  indicador(...chaves: string[]): string {
-    return this.valor(this.veiculoSelecionado, ...chaves);
-  }
-
-  get dadosFiltrados(): Record<string, unknown>[] {
+  get dadosFiltrados(): DadoVeiculo[] {
     const busca = this.buscaCodigo.trim().toLowerCase();
     if (!busca) {
       return this.vehicleData;
@@ -90,7 +85,7 @@ export class Dashboard implements OnInit, OnDestroy {
       .toLowerCase().includes(busca));
   }
 
-  trackByVeiculo(_: number, veiculo: DashboardVeiculo): number | string {
+  trackByVeiculo(_: number, veiculo: Veiculo): string {
     return veiculo.id;
   }
 
@@ -107,9 +102,10 @@ export class Dashboard implements OnInit, OnDestroy {
     this.buscaCodigo$.next(codigo);
   }
 
-  valor(dados: Record<string, unknown> | undefined, ...chaves: string[]): string {
-    const chave = chaves.find((nome) => dados?.[nome] !== undefined && dados[nome] !== null);
-    return chave ? String(dados?.[chave]) : '-';
+  valor(dados: object | undefined, ...chaves: string[]): string {
+    const registro = dados as Record<string, unknown> | undefined;
+    const chave = chaves.find((nome) => registro?.[nome] !== undefined && registro[nome] !== null);
+    return chave ? String(registro?.[chave]) : '-';
   }
 
   imagemDoVeiculo(nome: string): string {
@@ -124,41 +120,44 @@ export class Dashboard implements OnInit, OnDestroy {
     return chave ? imagens[chave] : '/img/ford.png';
   }
 
-  private normalizarVeiculos(response: unknown): DashboardVeiculo[] {
+  private normalizarVeiculos(response: unknown): Veiculo[] {
     const lista = Array.isArray(response)
       ? response
       : (response as { vehicles?: unknown[] })?.vehicles ?? [];
 
     return lista.map((item, index) => {
       const dados = (item ?? {}) as Record<string, unknown>;
-      const id = typeof dados['id'] === 'string' || typeof dados['id'] === 'number'
-        ? dados['id']
-        : index + 1;
+      const id = String(dados['id'] ?? index + 1);
+      const nome = String(dados['nome'] ?? dados['vehicle'] ?? dados['model'] ?? dados['name'] ?? 'Veículo');
       return {
-        ...dados,
         id,
-        vehicle: String(dados['vehicle'] ?? dados['model'] ?? dados['name'] ?? 'Veículo'),
-        imagem: this.imagemDoVeiculo(String(dados['vehicle'] ?? dados['model'] ?? '')),
+        nome,
+        imagemUrl: String(dados['imagemUrl'] ?? this.imagemDoVeiculo(nome)),
       };
     });
   }
 
-  private normalizarLista(response: unknown, vin?: string): Record<string, unknown>[] {
+  private normalizarLista(response: unknown, vin?: string): DadoVeiculo[] {
+    const normalizar = (item: unknown): DadoVeiculo => {
+      const dados = (item ?? {}) as Record<string, unknown>;
+      return {
+        vin: String(dados['vin'] ?? vin ?? ''),
+        odometro: Number(dados['odometro'] ?? dados['odometer'] ?? 0),
+        nivelCombustivelOuBateria: (dados['nivelCombustivelOuBateria'] ?? dados['fuelLevel'] ?? dados['batteryLevel'] ?? '-') as string | number,
+        statusOuPneus: String(dados['statusOuPneus'] ?? dados['status'] ?? dados['tirePressure'] ?? '-'),
+        latitude: Number(dados['latitude'] ?? dados['lat'] ?? 0),
+        longitude: Number(dados['longitude'] ?? dados['long'] ?? dados['lng'] ?? 0),
+      };
+    };
     if (Array.isArray(response)) {
-      return response.map((item) => ({
-        ...(item as Record<string, unknown>),
-        vin: (item as Record<string, unknown>)['vin'] ?? vin,
-      }));
+      return response.map(normalizar);
     }
     const dados = response as { vehicleData?: unknown[] };
     if (Array.isArray(dados?.vehicleData)) {
-      return dados.vehicleData.map((item) => ({
-        ...(item as Record<string, unknown>),
-        vin: (item as Record<string, unknown>)['vin'] ?? vin,
-      }));
+      return dados.vehicleData.map(normalizar);
     }
     return response && typeof response === 'object'
-      ? [{ ...(response as Record<string, unknown>), vin: (response as Record<string, unknown>)['vin'] ?? vin }]
+      ? [normalizar(response)]
       : [];
   }
 
