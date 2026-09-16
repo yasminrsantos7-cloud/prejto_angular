@@ -1,4 +1,10 @@
 /* Estilos globais da aplicação Angular. */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
 html,
 body {
 	width: 100%;
@@ -8,9 +14,35 @@ body {
 
 body {
 	min-height: 100vh;
+	overflow-x: hidden;
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+img,
+svg,
+video {
+	display: block;
+	max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+	max-width: 100%;
+	font: inherit;
 }
 
 app-root {
 	display: block;
 	min-height: 100vh;
+}
+
+@media (max-width: 420px) {
+	h1,
+	h2,
+	h3,
+	p {
+		overflow-wrap: anywhere;
+	}
 }
